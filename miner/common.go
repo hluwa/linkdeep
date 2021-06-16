@@ -48,7 +48,7 @@ func SimpleGet(u string) (body []byte, err error) {
 var re *regexp.Regexp
 
 func init() {
-	re, _ = regexp.Compile("[a-zA-Z0-9]+://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
+	re, _ = regexp.Compile("[a-zA-Z0-9\\-_]+://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
 }
 
 func MatchLinks(content string, prefix string) (links []string) {
