@@ -68,13 +68,15 @@ func handleContent(content string) string {
 }
 
 func FofaMiner(format string) (links []string, err error) {
+	config := GetConfig().Fofa
+	log.Printf("[*] Starting discover from FOFA, threadCount=%d, maxCount=%d\n", config.ThreadCount, config.MaxCount)
 	hosts, err := FofaSearchBody(format)
 	if err != nil {
 		return
 	}
 	log.Printf("[*] FOFA found %d host.\n", len(hosts))
 
-	channel := make(chan []string, GetConfig().Fofa.ThreadCount)
+	channel := make(chan []string, config.ThreadCount)
 	for _, host := range hosts {
 		go func(h string) {
 			content, err := FofaFetchContent(h)
@@ -95,5 +97,6 @@ func FofaMiner(format string) (links []string, err error) {
 		links = append(links, l...)
 	}
 	links = RemoveRep(links)
+	log.Printf("[*] FOFA found %d link.\n", len(links))
 	return
 }
