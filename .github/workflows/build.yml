@@ -2,7 +2,7 @@ name: Build Releases
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
 
@@ -16,14 +16,6 @@ jobs:
         with:
           go-version: 1.15
 
-      - name: Install dependencies
-        run: |
-          go get -u github.com/spf13/cobra
-          go get -u github.com/inconshreveable/mousetrap
-
-      - name: Make
-        run: make
-
       - name: GetVersion
         id: getVersion
         uses: actions/github-script@v4.0.2
@@ -31,6 +23,14 @@ jobs:
           script: |
             const version = context.ref.replace("refs/tags/", "")
             core.setOutput('version', version);
+
+      - name: Install dependencies
+        run: |
+          go get -u github.com/spf13/cobra
+          go get -u github.com/inconshreveable/mousetrap
+
+      - name: Make
+        run: make
 
       - name: Rename
         run: |
@@ -40,7 +40,7 @@ jobs:
           mv dist/linkdeep_win32 dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32
           mv dist/linkdeep_win64 dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64
 
-      - name: Release
+      - name: Publish
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
