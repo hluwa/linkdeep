@@ -2,7 +2,7 @@
   "fofa": {
     "email": "xxxx@xxx.com",
     "key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "maxCount" : 500,
+    "maxCount": 500,
     "threadCount": 10,
     "proxy": "http://127.0.0.1:8888/"
   },
