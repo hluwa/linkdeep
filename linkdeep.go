@@ -20,7 +20,7 @@ var (
 	command   = &cobra.Command{
 		Use:   "linkdeep [target]",
 		Short: "Automation discovering from public internet for deeplink.",
-		Long: `Linkdeep is an useful tool for discover deeplink from internet.
+		Long: `LinkDeep is a useful tool for discover deeplink from internet.
 Enter the uri or facts(scheme, host, path) to generate uri
 start deeplink discovering from internet big-data.`,
 		RunE: linkdeep,
