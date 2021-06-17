@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hluwa/simplethreadpool"
 	"html"
 	"log"
+	"sync"
 )
 
 type FofaResponse struct {
@@ -76,26 +78,28 @@ func FofaMiner(format string) (links []string, err error) {
 	}
 	log.Printf("[*] FOFA found %d host.\n", len(hosts))
 
-	channel := make(chan []string, config.ThreadCount)
-	for _, host := range hosts {
-		go func(h string) {
-			content, err := FofaFetchContent(h)
+	var mu sync.Mutex
+	makeF := func(host string) func() {
+		return func() {
+			content, err := FofaFetchContent(host)
 			if err != nil {
-				log.Printf("[*] (%s) fetch content failed as %s.\n", h, err)
-				channel <- nil
+				log.Printf("[*] (%s) fetch content failed as %s.\n", host, err)
 			} else {
 				content = handleContent(content)
 				l := MatchLinks(content, format)
-				log.Printf("[*] (%s) fetch content size %d, matched %d links\n", h, len(content), len(l))
-				channel <- l
+				log.Printf("[*] (%s) fetch content size %d, matched %d links\n", host, len(content), len(l))
+				mu.Lock()
+				defer mu.Unlock()
+				links = append(links, l...)
 			}
-		}(host)
+		}
 	}
+	pool := simplethreadpool.NewSimpleThreadPool(config.ThreadCount)
+	for _, host := range hosts {
+		pool.Put(makeF(host))
+	}
+	pool.Sync()
 
-	for i := 0; i < len(hosts); i++ {
-		l := <-channel
-		links = append(links, l...)
-	}
 	links = RemoveRep(links)
 	log.Printf("[*] FOFA found %d link.\n", len(links))
 	return

@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	miners    = []func(string) ([]string, error){miner.GithubMiner, miner.FofaMiner}
 	proxyFofa = ""
 	proxy     = ""
 	scheme    = ""
@@ -73,9 +74,15 @@ func linkdeep(_ *cobra.Command, args []string) error {
 	}
 
 	log.Printf("Start mining for %s\n", uri)
-	links, e := miner.FofaMiner(uri)
-	if e != nil {
-		log.Fatalln(e)
+	var links []string
+	for _, m := range miners {
+		l, e := m(uri)
+		if e != nil {
+			log.Printf("[E] %s\n", e)
+		}
+		if len(l) > 0 {
+			links = append(links, l...)
+		}
 	}
 
 	for _, links := range links {

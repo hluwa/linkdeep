@@ -10,21 +10,36 @@ import (
 var config *Config
 var mu sync.Mutex
 
+type MinerConfig struct {
+	MaxCount    int    `json:"maxCount"`
+	ThreadCount int    `json:"threadCount"`
+	Proxy       string `json:"proxy"`
+}
+
 type Config struct {
 	Fofa struct {
-		Email       string `json:"email"`
-		Key         string `json:"key"`
-		MaxCount    int    `json:"maxCount"`
-		ThreadCount int    `json:"threadCount"`
-		Proxy       string `json:"proxy"`
+		MinerConfig
+		Email string `json:"email"`
+		Key   string `json:"key"`
 	} `json:"fofa"`
-
+	Github struct {
+		MinerConfig
+		Token string `json:"token"`
+	} `json:"github"`
 	Proxy string `json:"proxy"`
 }
 
 func (c *Config) GetFofaProxy() string {
 	if c.Fofa.Proxy != "" {
 		return c.Fofa.Proxy
+	} else {
+		return c.Proxy
+	}
+}
+
+func (c *Config) GetGithubProxy() string {
+	if c.Github.Proxy != "" {
+		return c.Github.Proxy
 	} else {
 		return c.Proxy
 	}
@@ -40,21 +55,39 @@ func GetConfig() *Config {
 		if err != nil {
 			panic(fmt.Sprintf("Unable read config.json: %s", err))
 		}
-		var conf Config
-		err = json.Unmarshal(content, &conf)
+		config = NewConfig()
+		err = json.Unmarshal(content, config)
 		if err != nil {
 			panic(fmt.Sprintf("Unable unmarshal config: %s", err))
 		}
-		config = &conf
 
-		if config.Fofa.MaxCount <= 0 {
-			config.Fofa.MaxCount = 100
-		} else if config.Fofa.MaxCount > 10000 {
+		if config.Fofa.MaxCount > 10000 {
 			config.Fofa.MaxCount = 10000
-		}
-		if config.Fofa.ThreadCount <= 0 {
-			config.Fofa.ThreadCount = 20
 		}
 	}
 	return config
+}
+
+func NewConfig() *Config {
+	return &Config{
+		Fofa: struct {
+			MinerConfig
+			Email string `json:"email"`
+			Key   string `json:"key"`
+		}{
+			MinerConfig: MinerConfig{
+				MaxCount:    100,
+				ThreadCount: 5,
+			},
+		},
+		Github: struct {
+			MinerConfig
+			Token string `json:"token"`
+		}{
+			MinerConfig: MinerConfig{
+				MaxCount:    1000,
+				ThreadCount: 20,
+			},
+		},
+	}
 }

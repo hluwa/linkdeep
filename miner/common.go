@@ -18,8 +18,10 @@ func GetHttpClient() *http.Client {
 	if httpClient == nil {
 		proxy := func(req *http.Request) (*url.URL, error) {
 			proxy := GetConfig().Proxy
-			if strings.Contains(req.URL.Host, "fofa.so") {
+			if strings.HasSuffix(req.URL.Host, "fofa.so") {
 				proxy = GetConfig().GetFofaProxy()
+			} else if strings.HasSuffix(req.URL.Host, "github.com") {
+				proxy = GetConfig().GetGithubProxy()
 			}
 			if proxy != "" {
 				return url.Parse(proxy)
@@ -33,11 +35,20 @@ func GetHttpClient() *http.Client {
 }
 
 func SimpleGet(u string) (body []byte, err error) {
+	return CustomGet(u, nil)
+}
+
+func CustomGet(u string, preFunc func(r *http.Request)) (body []byte, err error) {
 	client := GetHttpClient()
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return
 	}
+
+	if preFunc != nil {
+		preFunc(req)
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return
