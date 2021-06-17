@@ -17,20 +17,38 @@ jobs:
           go-version: 1.15
 
       - name: Install dependencies
-        run: apt install -y make
+        run: |
+          go get -u github.com/spf13/cobra
+          go get -u github.com/inconshreveable/mousetrap
 
       - name: Make
         run: make
+
+      - name: GetVersion
+        id: getVersion
+        uses: actions/github-script@v4.0.2
+        with:
+          script: |
+            const version = context.ref.replace("refs/tags/", "")
+            core.setOutput('version', version);
+
+      - name: Rename
+        run: |
+          mv dist/linkdeep_linux32 dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux32
+          mv dist/linkdeep_linux64 dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux64
+          mv dist/linkdeep_macos dist/linkdeep_${{ steps.getVersion.outputs.version }}_macos
+          mv dist/linkdeep_win32 dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32
+          mv dist/linkdeep_win64 dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            dist/linkdeep_linux32
-            dist/linkdeep_linux64
-            dist/linkdeep_macOS
-            dist/linkdeep_win32
-            dist/linkdeep_win64
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux32
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux64
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_macos
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
