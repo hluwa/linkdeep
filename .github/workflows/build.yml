@@ -28,6 +28,7 @@ jobs:
         run: |
           go get -u github.com/spf13/cobra
           go get -u github.com/inconshreveable/mousetrap
+          go get -u github.com/hluwa/simplethreadpool
 
       - name: Make
         run: make
