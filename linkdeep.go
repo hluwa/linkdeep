@@ -43,38 +43,46 @@ func initConfig() {
 	}
 }
 
+func generateUri() (uri string) {
+	uri = ""
+	if scheme != "" {
+		uri = fmt.Sprintf("%s://", scheme)
+	}
+	if host != "" {
+		if uri == "" {
+			uri = "://"
+		}
+		uri = fmt.Sprintf("%s%s/", uri, host)
+		if path != "" {
+			uri = fmt.Sprintf("%s%s", uri, path)
+		}
+	} else if path != "" {
+		uri = fmt.Sprintf("%s/%s", uri, path)
+	}
+	return
+}
+
 func linkdeep(_ *cobra.Command, args []string) error {
 	initConfig()
+
 	var uri string
 	if len(args) > 0 {
 		uri = args[0]
 	} else {
-		uri = ""
-		if scheme != "" {
-			uri = fmt.Sprintf("%s://", scheme)
-		}
-		if host != "" {
-			if uri == "" {
-				uri = "://"
-			}
-			uri = fmt.Sprintf("%s%s/", uri, host)
-			if path != "" {
-				uri = fmt.Sprintf("%s%s", uri, path)
-			}
-		} else if path != "" {
-			uri = fmt.Sprintf("%s/%s", uri, path)
-		}
+		uri = generateUri()
 	}
 
-	log.Printf("Starting miner for %s\n", uri)
+	log.Printf("Start mining for %s\n", uri)
 	links, e := miner.FofaMiner(uri)
 	if e != nil {
 		log.Fatalln(e)
 	}
+
 	for _, links := range links {
 		log.Println(links)
 	}
 	if output != "" {
+		log.Printf("Save %d link into %s\n", len(links), output)
 		return ioutil.WriteFile(output, []byte(strings.Join(links, "\n")), 0777)
 	}
 
