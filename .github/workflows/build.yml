@@ -37,8 +37,8 @@ jobs:
           mv dist/linkdeep_linux32 dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux32
           mv dist/linkdeep_linux64 dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux64
           mv dist/linkdeep_macos dist/linkdeep_${{ steps.getVersion.outputs.version }}_macos
-          mv dist/linkdeep_win32 dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32
-          mv dist/linkdeep_win64 dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64
+          mv dist/linkdeep_win32.exe dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32.exe
+          mv dist/linkdeep_win64.exe dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64.exe
 
       - name: Publish
         uses: softprops/action-gh-release@v1
@@ -48,7 +48,7 @@ jobs:
             dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux32
             dist/linkdeep_${{ steps.getVersion.outputs.version }}_linux64
             dist/linkdeep_${{ steps.getVersion.outputs.version }}_macos
-            dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32
-            dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_win32.exe
+            dist/linkdeep_${{ steps.getVersion.outputs.version }}_win64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
