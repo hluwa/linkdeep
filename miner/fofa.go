@@ -28,12 +28,11 @@ type FofaSearchResult struct {
 
 func FofaSearchBody(keyword string) (hosts []string, err error) {
 	qBase64 := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("body=\"%s\"", keyword)))
-	//qBase64 := base64.StdEncoding.EncodeToString([]byte("body=\"kakaotalk://shopping\" || body=\"kakaotalk://mart\" || body=\"kakaoopen://join\""))
 	maxCount := GetConfig().Fofa.MaxCount
 	if maxCount == 0 {
 		maxCount = 100
 	}
-	url := fmt.Sprintf("https://fofa.so/api/v1/search/all?fields=host&full=true&qbase64=%s&email=%s&key=%s&size=%d",
+	url := fmt.Sprintf("https://fofa.info/api/v1/search/all?fields=host&full=true&qbase64=%s&email=%s&key=%s&size=%d",
 		qBase64, GetConfig().Fofa.Email, GetConfig().Fofa.Key, maxCount)
 	respBody, err := SimpleGet(url)
 	if err != nil {
@@ -56,7 +55,7 @@ func FofaSearchBody(keyword string) (hosts []string, err error) {
 }
 
 func FofaFetchContent(host string) (content string, err error) {
-	url := fmt.Sprintf("https://fofa.so/result/website?host=%s", host)
+	url := fmt.Sprintf("https://fofa.info/result/website?host=%s", host)
 	respBody, err := SimpleGet(url)
 	if err != nil {
 		return
